@@ -14,9 +14,9 @@ public class WebConfiguration implements Configuration {
                 get("/ping", "pong").
                 post("/feedback", (context) -> {
                     Message message = context.extract(Message.class);
-                    if (message.type != "WIN") {
+                    //if (!message.type.equals("WIN")) {
                     	logger.log(message.type + ": " + message.message);
-                    }
+                    //}
                     return new Payload(204);
                 }).
                 post("/quote", (context -> {
@@ -26,13 +26,12 @@ public class WebConfiguration implements Configuration {
                     logger.log(method + " " + uri + " " + body);
                     Order order = context.extract(Order.class);
                     logger.log("Unserialized order: " + order);
-
-                    // Use the following line to choose not to handle an order
-                    //return new Payload("application/json", "", 200);
-
-
-                    Answer answer = order.createQuote();
-                    return new Payload("application/json", answer, 200);
+                    try {
+	                    Answer answer = order.createQuote();
+	                    return new Payload("application/json", answer, 200);
+                    } catch (Exception e) {
+                    	return new Payload(400);
+					} 
                 }))
         ;
     }
